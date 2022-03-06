@@ -5,7 +5,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TableFooter,
   TablePagination,
@@ -13,18 +12,41 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/Context";
-import { StyledTableCell, StyledTableRow } from "../../styles/styles";
 import { CREATE_DATA, TABLE_HEADER } from "../../utils/Constants";
+import TableHeader from "./TableHeader";
 import TablePaginationActions from "./TablePaginationActions";
 
-const TableComponent = () => {
+const TableComponent = ({ showDetails }) => {
   const { marketData, loadingTableData } = useContext(AppContext);
+  const [order, setOrder] = useState("");
+  const [orderBy, setOrderBy] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableData, setTableData] = useState([]);
 
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+  function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  function getComparator(order, orderBy) {
+    return order === "desc"
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }
+
   useEffect(() => {
-    if (marketData)
+    if (marketData) {
       setTableData([
         ...marketData.map((data) =>
           CREATE_DATA(
@@ -39,6 +61,7 @@ const TableComponent = () => {
           )
         )
       ]);
+    }
   }, [marketData]);
 
   const emptyRows =
@@ -57,49 +80,44 @@ const TableComponent = () => {
     <Box component={"div"}>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
-          <TableHead>
-            <StyledTableRow>
-              {TABLE_HEADER.map((head) => (
-                <StyledTableCell
-                  key={head.id}
-                  style={{ minWidth: head.minWidth }}
-                >
-                  {head.label}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
-          </TableHead>
+          <TableHeader
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            reset={() => {
+              setOrder("");
+              setOrderBy("");
+            }}
+          />
           {loadingTableData ? (
             <Typography>Fetching market data...</Typography>
           ) : marketData ? (
             <>
               <TableBody>
-                {(rowsPerPage > 0
-                  ? tableData.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : tableData
-                ).map((row, index) => (
-                  <StyledTableRow
-                    key={index}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    {TABLE_HEADER.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell
-                          key={column.id}
-                          {...(column.onClick
-                            ? { onClick: () => console.log(row) }
-                            : undefined)}
-                        >
-                          {column.format ? column.format(value) : value}
-                        </TableCell>
-                      );
-                    })}
-                  </StyledTableRow>
-                ))}
+                {tableData
+                  .slice()
+                  .sort(getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      {TABLE_HEADER.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell
+                            key={column.id}
+                            {...(column.onClick
+                              ? { onClick: () => showDetails(row.id) }
+                              : undefined)}
+                          >
+                            {column.format ? column.format(value) : value}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />

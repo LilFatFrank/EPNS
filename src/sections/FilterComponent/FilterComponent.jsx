@@ -20,7 +20,10 @@ const FilterComponent = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    callApi("market", formValues.coin);
+    callApi(
+      "market",
+      formValues.coin === "avalanche" ? "avalanche-2" : formValues.coin
+    );
   };
 
   return (
@@ -34,12 +37,12 @@ const FilterComponent = () => {
             label="Coin"
             type="text"
             placeholder="e.g. bitcoin"
-            value={formValues.name}
             onChange={(e) =>
               setFormValues({ ...defaultFormValues, coin: e.target.value })
             }
           />
-          <FormHelperText>Please write in lowercase</FormHelperText>
+          <FormHelperText>Please input id in lowercase</FormHelperText>
+          <FormHelperText>Leave empty to search all</FormHelperText>
         </FormControl>
         <Button
           type="submit"

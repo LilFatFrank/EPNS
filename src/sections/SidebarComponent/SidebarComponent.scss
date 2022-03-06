@@ -1,0 +1,11 @@
+@import "../../styles/mixins.scss";
+
+.sidebar-details {
+  @include flex(column, flex-start, center, 20px);
+  .section {
+    @include flex(column, flex-start, center, 10px);
+  }
+  .section-details {
+    @include flex(column, flex-start, center, 2px);
+  }
+}
