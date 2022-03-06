@@ -1,6 +1,14 @@
-# Getting Started with Create React App
+# EPNS Assignment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Question 2.A was attempted as part of the challenge.
+
+## Design a basic web app or react native app, In which you have to implement sorting and filter options, for data you can use any third-party API’s
+
+Connected to the [coingecko](https://coingecko.com) api using the public api available on [rapidapi](https://rapidapi.com).
+It's a simple web app used to view the top 100 markets at the moment.
+
+There's a filter component to search the coin. A table component to view the data. A sidebar component to view additional info.
+Every column of the table component can be sorted. Also made use of paginaton to view the records in orderly fashion.
 
 ## Available Scripts
 
